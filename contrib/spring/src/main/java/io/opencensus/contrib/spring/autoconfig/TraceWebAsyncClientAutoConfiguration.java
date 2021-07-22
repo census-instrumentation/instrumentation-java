@@ -22,6 +22,7 @@ import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace;
 import io.opencensus.contrib.spring.autoconfig.OpenCensusProperties.Trace.Propagation;
 import io.opencensus.contrib.spring.instrument.web.client.TracingAsyncClientHttpRequestInterceptor;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.B3InjectionFormat;
 import io.opencensus.trace.propagation.TextFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,6 +64,9 @@ public class TraceWebAsyncClientAutoConfiguration {
     @Value("${opencensus.spring.trace.propagation:TRACE_PROPAGATION_TRACE_CONTEXT}")
     private Trace.Propagation propagation;
 
+    @Value("${opencensus.spring.trace.b3.injectionFormats:MULTI}")
+    private B3InjectionFormat[] b3InjectionFormats;
+
     @Autowired(required = false)
     HttpExtractor<HttpRequest, ClientHttpResponse> extractor;
 
@@ -71,7 +75,7 @@ public class TraceWebAsyncClientAutoConfiguration {
       TextFormat propagator;
 
       if (propagation != null && propagation == Propagation.TRACE_PROPAGATION_B3) {
-        propagator = Tracing.getPropagationComponent().getB3Format();
+        propagator = Tracing.getPropagationComponent().getB3Format(b3InjectionFormats);
       } else {
         propagator = Tracing.getPropagationComponent().getTraceContextFormat();
       }
